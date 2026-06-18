@@ -1,0 +1,110 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-verde: var(--verde);
+  --color-verde-deep: var(--verde-deep);
+  --color-rojo: var(--rojo);
+  --color-rojo-deep: var(--rojo-deep);
+  --color-cafe: var(--cafe);
+  --color-cafe-soft: var(--cafe-soft);
+  --color-azul: var(--azul);
+  --color-azul-deep: var(--azul-deep);
+  --color-cream: var(--cream);
+  --color-bone: var(--bone);
+
+  /* Legacy aliases used by existing components */
+  --color-forest: var(--verde);
+  --color-forest-deep: var(--verde-deep);
+  --color-gold: var(--rojo);
+  --color-gold-soft: var(--rojo-deep);
+  --color-slate-warm: var(--cafe);
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Montserrat", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Andino Vibrante palette */
+  --verde: #2D6A4F;
+  --verde-deep: #1B4332;
+  --rojo: #C53030;
+  --rojo-deep: #8C1D1D;
+  --cafe: #8B5A2B;
+  --cafe-soft: #C49A6C;
+  --azul: #2563EB;
+  --azul-deep: #1E40AF;
+  --cream: #FAF6EE;
+  --bone: #F2EADF;
+
+  --background: var(--cream);
+  --foreground: #2A1B12;
+  --card: #ffffff;
+  --card-foreground: #2A1B12;
+  --popover: #ffffff;
+  --popover-foreground: #2A1B12;
+  --primary: var(--verde);
+  --primary-foreground: var(--cream);
+  --secondary: var(--rojo);
+  --secondary-foreground: var(--cream);
+  --muted: var(--bone);
+  --muted-foreground: #5A4231;
+  --accent: var(--azul);
+  --accent-foreground: var(--cream);
+  --destructive: var(--rojo);
+  --destructive-foreground: #ffffff;
+  --border: #E6DCCB;
+  --input: #E6DCCB;
+  --ring: var(--verde);
+}
+
+.dark {
+  --background: #14110D;
+  --foreground: var(--cream);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  .font-display { font-family: var(--font-display); }
+  .font-sans { font-family: var(--font-sans); }
+}
