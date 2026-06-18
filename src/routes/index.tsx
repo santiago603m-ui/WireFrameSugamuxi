@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   Mountain,
   ArrowUpRight,
@@ -16,28 +16,82 @@ import {
   Sun,
   Menu,
   X,
+  PenTool,
+  Grid3X3,
+  MessageSquare,
+  Palette,
 } from "lucide-react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/")(  {
   head: () => ({
     meta: [
-      { title: "Provincia de Sugamuxi · Paisajes, cultura y aventura en Boyacá" },
+      { title: "Provincia de Sugamuxi · Paisajes, cultura y aventura en Boyaca" },
       {
         name: "description",
         content:
-          "Descubre la Provincia de Sugamuxi: Sogamoso, Monguí, Aquitania, Iza y el Lago de Tota. Destinos, experiencias y gastronomía en el corazón de Boyacá.",
+          "Descubre la Provincia de Sugamuxi: Sogamoso, Mongui, Aquitania, Iza y el Lago de Tota. Destinos, experiencias y gastronomia en el corazon de Boyaca.",
       },
       { property: "og:title", content: "Provincia de Sugamuxi" },
       {
         property: "og:description",
-        content: "Paisajes, cultura y aventura en el corazón de Boyacá.",
+        content: "Paisajes, cultura y aventura en el corazon de Boyaca.",
       },
     ],
   }),
   component: Landing,
 });
 
-/* ---------- Bento image placeholder ---------- */
+/* ========================================================
+   WIREFRAME CONTEXT
+   ======================================================== */
+interface WireframeState {
+  wireframe: boolean;
+  grid: boolean;
+  annotations: boolean;
+  toggle: (key: "wireframe" | "grid" | "annotations") => void;
+}
+
+const WireframeCtx = createContext<WireframeState>({
+  wireframe: false,
+  grid: false,
+  annotations: false,
+  toggle: () => {},
+});
+
+function useWireframe() {
+  return useContext(WireframeCtx);
+}
+
+function WireframeProvider({ children }: { children: ReactNode }) {
+  const [wireframe, setWireframe] = useState(true);
+  const [grid, setGrid] = useState(false);
+  const [annotations, setAnnotations] = useState(false);
+
+  const toggle = (key: "wireframe" | "grid" | "annotations") => {
+    if (key === "wireframe") setWireframe((v) => !v);
+    if (key === "grid") setGrid((v) => !v);
+    if (key === "annotations") setAnnotations((v) => !v);
+  };
+
+  return (
+    <WireframeCtx.Provider value={{ wireframe, grid, annotations, toggle }}>
+      {children}
+    </WireframeCtx.Provider>
+  );
+}
+
+/* ========================================================
+   ANNOTATION HELPER
+   ======================================================== */
+function Annotation({ label }: { label: string }) {
+  const { annotations } = useWireframe();
+  if (!annotations) return null;
+  return <div className="wireframe-annotation">{label}</div>;
+}
+
+/* ========================================================
+   BENTO IMAGE PLACEHOLDER
+   ======================================================== */
 function Ph({
   label,
   tone = "verde",
@@ -47,6 +101,8 @@ function Ph({
   tone?: "verde" | "rojo" | "cafe" | "azul" | "cream";
   className?: string;
 }) {
+  const { wireframe } = useWireframe();
+
   const tones: Record<string, string> = {
     verde:
       "bg-[linear-gradient(135deg,#1B4332_0%,#2D6A4F_60%,#52B788_100%)] text-cream",
@@ -59,6 +115,19 @@ function Ph({
     cream:
       "bg-[linear-gradient(135deg,#F2EADF_0%,#FAF6EE_100%)] text-cafe",
   };
+
+  if (wireframe) {
+    return (
+      <div
+        className={`wf-image-placeholder ${className}`}
+        role="img"
+        aria-label={label}
+      >
+        <span className="wf-image-placeholder__label">{label}</span>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`relative overflow-hidden ${tones[tone]} ${className}`}
@@ -73,10 +142,74 @@ function Ph({
   );
 }
 
-/* ---------- Nav ---------- */
+/* ========================================================
+   WIREFRAME CONTROLS TOOLBAR
+   ======================================================== */
+function WireframeControls() {
+  const { wireframe, grid, annotations, toggle } = useWireframe();
+
+  return (
+    <div className="wf-controls" id="wireframe-toolbar">
+      <button
+        className={`wf-controls__btn ${wireframe ? "wf-controls__btn--active" : ""}`}
+        onClick={() => toggle("wireframe")}
+        aria-label="Alternar modo esquema"
+      >
+        <span className={`wf-controls__dot ${wireframe ? "wf-controls__dot--active" : ""}`} />
+        <PenTool style={{ width: 14, height: 14 }} />
+        Esquema
+      </button>
+
+      <span className="wf-controls__sep" />
+
+      <button
+        className={`wf-controls__btn ${grid ? "wf-controls__btn--active" : ""}`}
+        onClick={() => toggle("grid")}
+        aria-label="Alternar cuadricula"
+      >
+        <span className={`wf-controls__dot ${grid ? "wf-controls__dot--active" : ""}`} />
+        <Grid3X3 style={{ width: 14, height: 14 }} />
+        Cuadricula
+      </button>
+
+      <span className="wf-controls__sep" />
+
+      <button
+        className={`wf-controls__btn ${annotations ? "wf-controls__btn--active" : ""}`}
+        onClick={() => toggle("annotations")}
+        aria-label="Alternar anotaciones"
+      >
+        <span className={`wf-controls__dot ${annotations ? "wf-controls__dot--active" : ""}`} />
+        <MessageSquare style={{ width: 14, height: 14 }} />
+        Anotaciones
+      </button>
+
+      <span className="wf-controls__sep" />
+
+      <button
+        className="wf-controls__btn"
+        onClick={() => {
+          toggle("wireframe");
+          toggle("grid");
+          toggle("annotations");
+        }}
+        aria-label="Alternar todos los modos"
+      >
+        <Palette style={{ width: 14, height: 14 }} />
+        Todo
+      </button>
+    </div>
+  );
+}
+
+/* ========================================================
+   NAV
+   ======================================================== */
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { annotations } = useWireframe();
+
   useEffect(() => {
     const f = () => setScrolled(window.scrollY > 40);
     f();
@@ -87,8 +220,8 @@ function Nav() {
   const links = [
     ["#destinos", "Destinos"],
     ["#experiencias", "Experiencias"],
-    ["#gastronomia", "Gastronomía"],
-    ["#guia", "Guía"],
+    ["#gastronomia", "Gastronomia"],
+    ["#guia", "Guia"],
     ["#contacto", "Contacto"],
   ];
 
@@ -100,6 +233,11 @@ function Nav() {
           : "bg-transparent"
       }`}
     >
+      {annotations && (
+        <div className="wireframe-annotation" style={{ top: 4, left: 4 }}>
+          &lt;Cabecera&gt; — Navegacion fija con efecto de desenfoque al hacer scroll
+        </div>
+      )}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
         <a href="#top" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-verde text-cream">
@@ -129,7 +267,7 @@ function Nav() {
         <button
           className="grid h-10 w-10 place-items-center rounded-lg border border-border bg-cream md:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Menú"
+          aria-label="Menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -154,15 +292,18 @@ function Nav() {
   );
 }
 
-/* ---------- Hero Bento ---------- */
+/* ========================================================
+   HERO BENTO
+   ======================================================== */
 function Hero() {
   return (
     <section id="top" className="relative pt-28 pb-12 md:pt-32">
+      <Annotation label="<Seccion> Hero — Cuadricula bento de 12 columnas" />
       <div className="mx-auto max-w-7xl px-5">
         {/* Top headline row */}
         <div className="grid grid-cols-12 gap-3 md:gap-4">
           <div className="col-span-12 flex items-center gap-3 text-xs font-mono uppercase tracking-[0.2em] text-cafe md:col-span-8">
-            <span className="h-px w-10 bg-cafe" /> Boyacá · Colombia · 13 municipios
+            <span className="h-px w-10 bg-cafe" /> Boyaca · Colombia · 13 municipios
           </div>
           <div className="col-span-12 hidden items-center justify-end gap-2 md:col-span-4 md:flex">
             <span className="rounded-full border border-border bg-cream px-3 py-1 text-[11px] font-medium text-cafe">
@@ -195,7 +336,7 @@ function Hero() {
             <div>
               <p className="text-sm leading-relaxed opacity-90">
                 Paisajes andinos, lagunas sagradas, pueblos coloniales y la
-                cocina más auténtica del altiplano boyacense.
+                cocina mas autentica del altiplano boyacense.
               </p>
               <a
                 href="#destinos"
@@ -214,7 +355,7 @@ function Hero() {
             <span className="font-display text-4xl font-bold md:text-5xl">13</span>
           </div>
           <Ph
-            label="Foto: Basílica de Monguí"
+            label="Foto: Basilica de Mongui"
             tone="cafe"
             className="col-span-1 rounded-2xl md:col-span-2"
           />
@@ -233,26 +374,28 @@ function Hero() {
   );
 }
 
-/* ---------- Destinos ---------- */
+/* ========================================================
+   DESTINOS
+   ======================================================== */
 const destinos = [
   {
     nombre: "Sogamoso",
     tag: "Ciudad del Sol",
-    desc: "Capital cultural, museo arqueológico y herencia muisca.",
+    desc: "Capital cultural, museo arqueologico y herencia muisca.",
     tone: "verde" as const,
     span: "md:col-span-3 md:row-span-2",
   },
   {
-    nombre: "Monguí",
+    nombre: "Mongui",
     tag: "Pueblo Patrimonio",
-    desc: "Calles empedradas, balones artesanales y basílica colonial.",
+    desc: "Calles empedradas, balones artesanales y basilica colonial.",
     tone: "rojo" as const,
     span: "md:col-span-3",
   },
   {
     nombre: "Aquitania",
     tag: "Lago de Tota",
-    desc: "El lago navegable más grande de Colombia.",
+    desc: "El lago navegable mas grande de Colombia.",
     tone: "azul" as const,
     span: "md:col-span-2",
   },
@@ -267,7 +410,8 @@ const destinos = [
 
 function Destinos() {
   return (
-    <section id="destinos" className="py-20 md:py-28">
+    <section id="destinos" className="relative py-20 md:py-28">
+      <Annotation label="<Seccion> Destinos — Tarjetas bento con superposicion de degradado" />
       <div className="mx-auto max-w-7xl px-5">
         <SectionHead
           eyebrow="01 · Destinos"
@@ -277,7 +421,7 @@ function Destinos() {
               provincia
             </>
           }
-          desc="De Sogamoso a Mongua, cada pueblo guarda un capítulo distinto del altiplano boyacense."
+          desc="De Sogamoso a Mongua, cada pueblo guarda un capitulo distinto del altiplano boyacense."
         />
 
         <div className="mt-10 grid auto-rows-[260px] grid-cols-1 gap-3 md:grid-cols-6 md:gap-4">
@@ -309,16 +453,19 @@ function Destinos() {
   );
 }
 
-/* ---------- Experiencias ---------- */
+/* ========================================================
+   EXPERIENCIAS
+   ======================================================== */
 function Experiencias() {
   const exp = [
-    { t: "Navegar el Lago de Tota", k: "Naturaleza · 1 día", tone: "azul" as const, icon: Waves },
-    { t: "Caminar Monguí colonial", k: "Cultura · medio día", tone: "rojo" as const, icon: Compass },
-    { t: "Ruta arqueológica muisca", k: "Historia · 1 día", tone: "verde" as const, icon: Sun },
-    { t: "Termales y postres en Iza", k: "Bienestar · 1 día", tone: "cafe" as const, icon: Utensils },
+    { t: "Navegar el Lago de Tota", k: "Naturaleza · 1 dia", tone: "azul" as const, icon: Waves },
+    { t: "Caminar Mongui colonial", k: "Cultura · medio dia", tone: "rojo" as const, icon: Compass },
+    { t: "Ruta arqueologica muisca", k: "Historia · 1 dia", tone: "verde" as const, icon: Sun },
+    { t: "Termales y postres en Iza", k: "Bienestar · 1 dia", tone: "cafe" as const, icon: Utensils },
   ];
   return (
-    <section id="experiencias" className="bg-verde-deep py-20 text-cream md:py-28">
+    <section id="experiencias" className="relative bg-verde-deep py-20 text-cream md:py-28">
+      <Annotation label="<Seccion> Experiencias — Tarjetas translucidas sobre fondo oscuro" />
       <div className="mx-auto max-w-7xl px-5">
         <SectionHead
           eyebrow="02 · Experiencias"
@@ -328,7 +475,7 @@ function Experiencias() {
               en una postal
             </span>
           }
-          desc="Itinerarios curados con operadores locales — del páramo al lago, de la cocina al taller artesanal."
+          desc="Itinerarios curados con operadores locales a€” del paramo al lago, de la cocina al taller artesanal."
           dark
         />
         <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-4">
@@ -359,20 +506,23 @@ function Experiencias() {
   );
 }
 
-/* ---------- Gastronomía bento ---------- */
+/* ========================================================
+   GASTRONOMIA BENTO
+   ======================================================== */
 function Gastronomia() {
   const platos = ["Cuchuco de trigo", "Piquete boyacense", "Chicha", "Caldo de costilla", "Mazamorra", "Postres de Iza"];
   return (
-    <section id="gastronomia" className="py-20 md:py-28">
+    <section id="gastronomia" className="relative py-20 md:py-28">
+      <Annotation label="<Seccion> Gastronomia — Cuadricula bento y etiquetas de opciones" />
       <div className="mx-auto max-w-7xl px-5">
         <SectionHead
-          eyebrow="03 · Gastronomía"
+          eyebrow="03 · Gastronomia"
           title={
             <>
               Sabores del <span className="italic text-rojo">altiplano</span>
             </>
           }
-          desc="Cocina campesina, recetas heredadas y productos de la tierra fría."
+          desc="Cocina campesina, recetas heredadas y productos de la tierra fria."
         />
 
         <div className="mt-10 grid auto-rows-[180px] grid-cols-2 gap-3 md:grid-cols-6 md:gap-4">
@@ -383,7 +533,7 @@ function Gastronomia() {
                 Cocina hecha a fuego lento
               </h3>
               <p className="mt-2 text-sm opacity-90">
-                Trucha del lago, mazorca tierna, cuchuco, almojábanas y la chicha
+                Trucha del lago, mazorca tierna, cuchuco, almojabanas y la chicha
                 que se brinda en cada festividad.
               </p>
             </div>
@@ -410,33 +560,36 @@ function Gastronomia() {
   );
 }
 
-/* ---------- Guía ---------- */
+/* ========================================================
+   GUIA
+   ======================================================== */
 function Guia() {
   const items = [
     {
       icon: Calendar,
       tone: "verde" as const,
-      t: "Cuándo ir",
+      t: "Cuando ir",
       d: "Diciembre a marzo y julio a agosto: cielos despejados y temperaturas de 6° a 18°C.",
     },
     {
       icon: Bus,
       tone: "azul" as const,
-      t: "Cómo llegar",
-      d: "3h desde Bogotá vía Tunja por la doble calzada. Bus directo a Sogamoso desde Salitre.",
+      t: "Como llegar",
+      d: "3h desde Bogota via Tunja por la doble calzada. Bus directo a Sogamoso desde Salitre.",
     },
     {
       icon: Hotel,
       tone: "rojo" as const,
-      t: "Dónde hospedarse",
+      t: "Donde hospedarse",
       d: "Hoteles boutique en Sogamoso, posadas campesinas en Aquitania y haciendas en Iza.",
     },
   ];
   return (
-    <section id="guia" className="bg-bone py-20 md:py-28">
+    <section id="guia" className="relative bg-bone py-20 md:py-28">
+      <Annotation label="<Seccion> Guia — Tarjetas informativas de 3 columnas" />
       <div className="mx-auto max-w-7xl px-5">
         <SectionHead
-          eyebrow="04 · Guía del viajero"
+          eyebrow="04 · Guia del viajero"
           title={
             <>
               Planea tu viaje con <span className="italic text-rojo">criterio</span> local
@@ -473,10 +626,13 @@ function Guia() {
   );
 }
 
-/* ---------- Contacto ---------- */
+/* ========================================================
+   CONTACTO
+   ======================================================== */
 function Contacto() {
   return (
-    <section id="contacto" className="py-20 md:py-28">
+    <section id="contacto" className="relative py-20 md:py-28">
+      <Annotation label="<Seccion> Contacto — Llamada a la accion y formulario en cuadricula de 5 columnas" />
       <div className="mx-auto max-w-7xl px-5">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
           <div className="rounded-3xl bg-verde p-8 text-cream md:col-span-3 md:p-12">
@@ -487,14 +643,14 @@ function Contacto() {
               ¿Listo para venir a Sugamuxi?
             </h2>
             <p className="mt-4 max-w-md text-sm leading-relaxed opacity-90">
-              Conecta con operadores turísticos locales, guías certificados y
+              Conecta con operadores turisticos locales, guias certificados y
               alojamientos recomendados por la comunidad.
             </p>
             <a
               href="#"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-rojo px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-rojo-deep"
             >
-              Ver operadores turísticos <ArrowUpRight className="h-4 w-4" />
+              Ver operadores turisticos <ArrowUpRight className="h-4 w-4" />
             </a>
           </div>
 
@@ -523,7 +679,7 @@ function Contacto() {
               <textarea
                 rows={3}
                 className="mt-1.5 w-full resize-none rounded-xl border border-border bg-bone/40 px-4 py-3 text-sm text-foreground outline-none focus:border-verde"
-                placeholder="Cuéntanos tu plan"
+                placeholder="Cuentanos tu plan"
               />
             </label>
             <button
@@ -539,10 +695,13 @@ function Contacto() {
   );
 }
 
-/* ---------- Footer ---------- */
+/* ========================================================
+   FOOTER
+   ======================================================== */
 function Footer() {
   return (
-    <footer className="border-t border-border bg-verde-deep text-cream/80">
+    <footer className="relative border-t border-border bg-verde-deep text-cream/80">
+      <Annotation label="<Pie de pagina> — Identidad de marca, enlaces y redes sociales" />
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-5 py-12 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2">
@@ -555,7 +714,7 @@ function Footer() {
           </div>
           <p className="mt-4 max-w-sm text-sm opacity-80">
             Una iniciativa colaborativa para mostrar la riqueza natural y
-            cultural de la Provincia de Sugamuxi, Boyacá.
+            cultural de la Provincia de Sugamuxi, Boyaca.
           </p>
         </div>
         <div>
@@ -563,12 +722,12 @@ function Footer() {
           <ul className="mt-3 space-y-2 text-sm">
             <li><a href="#destinos" className="hover:text-rojo">Destinos</a></li>
             <li><a href="#experiencias" className="hover:text-rojo">Experiencias</a></li>
-            <li><a href="#gastronomia" className="hover:text-rojo">Gastronomía</a></li>
-            <li><a href="#guia" className="hover:text-rojo">Guía</a></li>
+            <li><a href="#gastronomia" className="hover:text-rojo">Gastronomia</a></li>
+            <li><a href="#guia" className="hover:text-rojo">Guia</a></li>
           </ul>
         </div>
         <div>
-          <h4 className="font-display text-sm font-bold text-cream">Síguenos</h4>
+          <h4 className="font-display text-sm font-bold text-cream">Siguenos</h4>
           <div className="mt-3 flex gap-2">
             {[Instagram, Facebook, Youtube].map((I, i) => (
               <a
@@ -585,14 +744,16 @@ function Footer() {
       <div className="border-t border-cream/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-5 text-xs opacity-70 md:flex-row">
           <span>© 2026 Provincia de Sugamuxi. Hecho con orgullo boyacense.</span>
-          <span className="font-mono uppercase tracking-widest">Boyacá · Colombia</span>
+          <span className="font-mono uppercase tracking-widest">Boyaca · Colombia</span>
         </div>
       </div>
     </footer>
   );
 }
 
-/* ---------- Section header helper ---------- */
+/* ========================================================
+   SECTION HEAD HELPER
+   ======================================================== */
 function SectionHead({
   eyebrow,
   title,
@@ -633,10 +794,30 @@ function SectionHead({
   );
 }
 
-/* ---------- Page ---------- */
+/* ========================================================
+   PAGE (wrapped with WireframeProvider)
+   ======================================================== */
 function Landing() {
   return (
-    <main className="min-h-screen bg-cream font-sans text-foreground">
+    <WireframeProvider>
+      <LandingInner />
+    </WireframeProvider>
+  );
+}
+
+function LandingInner() {
+  const { wireframe, grid } = useWireframe();
+
+  const rootClasses = [
+    "min-h-screen bg-cream font-sans text-foreground",
+    wireframe ? "wireframe" : "",
+    grid ? "show-grid" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <main className={rootClasses}>
       <Nav />
       <Hero />
       <Destinos />
@@ -645,6 +826,7 @@ function Landing() {
       <Guia />
       <Contacto />
       <Footer />
+      <WireframeControls />
     </main>
   );
 }

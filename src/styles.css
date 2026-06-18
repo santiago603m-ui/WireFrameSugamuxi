@@ -108,3 +108,308 @@
   .font-display { font-family: var(--font-display); }
   .font-sans { font-family: var(--font-sans); }
 }
+
+/* ========================================================
+   WIREFRAME PRESENTATION MODE
+   ======================================================== */
+
+/* --- Wireframe: override all palette to solid white --- */
+.wireframe {
+  --verde: #ffffff;
+  --verde-deep: #ffffff;
+  --rojo: #ffffff;
+  --rojo-deep: #ffffff;
+  --cafe: #ffffff;
+  --cafe-soft: #ffffff;
+  --azul: #ffffff;
+  --azul-deep: #ffffff;
+  --cream: #ffffff;
+  --bone: #ffffff;
+
+  --background: #ffffff;
+  --foreground: #222222;
+  --card: #ffffff;
+  --card-foreground: #222222;
+  --popover: #ffffff;
+  --popover-foreground: #222222;
+  --primary: #ffffff;
+  --primary-foreground: #222222;
+  --secondary: #ffffff;
+  --secondary-foreground: #222222;
+  --muted: #ffffff;
+  --muted-foreground: #666666;
+  --accent: #ffffff;
+  --accent-foreground: #222222;
+  --destructive: #ffffff;
+  --destructive-foreground: #222222;
+  --border: #d1d5db;
+  --input: #d1d5db;
+  --ring: #222222;
+
+  --font-display: "Courier New", Courier, monospace;
+  --font-sans: "Courier New", Courier, monospace;
+}
+
+.wireframe * {
+  font-family: "Courier New", Courier, monospace !important;
+  color: #222222 !important;
+  border-color: #d1d5db !important;
+  transition: none !important;
+  animation: none !important;
+  text-shadow: none !important;
+}
+
+.wireframe h1,
+.wireframe h2,
+.wireframe h3,
+.wireframe h4 {
+  font-family: "Courier New", Courier, monospace !important;
+  letter-spacing: 0 !important;
+  color: #222222 !important;
+}
+
+.wireframe h1 {
+  font-size: clamp(2rem, 7vw, 4.5rem) !important;
+  line-height: 1.05 !important;
+}
+
+.wireframe h2 {
+  font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+  line-height: 1.15 !important;
+}
+
+.wireframe h3 {
+  font-size: clamp(1.2rem, 4vw, 1.8rem) !important;
+  line-height: 1.2 !important;
+}
+
+/* Force standard solid borders on rounded/card elements - NO dashed/dotted lines */
+.wireframe [class*="rounded"] {
+  border-radius: 4px !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* Make sections, cards and headers have strictly solid white backgrounds */
+.wireframe,
+.wireframe main,
+.wireframe section,
+.wireframe header,
+.wireframe footer,
+.wireframe article,
+.wireframe nav,
+.wireframe form,
+.wireframe div,
+.wireframe header div {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Button & rounded link styles - simple solid border, white background, compact hover */
+.wireframe button,
+.wireframe a[class*="rounded"] {
+  border: 1px solid #222222 !important;
+  border-radius: 4px !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #222222 !important;
+}
+
+.wireframe button:hover,
+.wireframe a[class*="rounded"]:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Input & textarea styles - solid borders */
+.wireframe input,
+.wireframe textarea {
+  border: 1px solid #222222 !important;
+  border-radius: 4px !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #222222 !important;
+}
+
+/* Ensure no gradients remain */
+.wireframe [class*="bg-[linear-gradient"],
+.wireframe [class*="bg-gradient-"],
+.wireframe [class*="from-"],
+.wireframe [class*="via-"],
+.wireframe [class*="to-"] {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+/* --- Blueprint Grid Overlay - disabled/removed --- */
+.show-grid {
+  position: relative;
+}
+
+.show-grid::before {
+  display: none !important; /* Force hide any grid */
+}
+
+/* --- Section Annotation Badges --- */
+.wireframe-annotation {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background-color: #ffffff !important;
+  color: #222222 !important;
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 4px !important;
+  border: 1.5px solid #222222 !important;
+  box-shadow: 2px 2px 0px #222222 !important;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.wireframe-annotation * {
+  color: #222222 !important;
+}
+
+.wireframe-annotation::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50% !important;
+  background: #222222 !important;
+  border: none !important;
+  flex-shrink: 0;
+}
+
+/* --- Wireframe Controls Toolbar --- */
+.wf-controls {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #ffffff !important;
+  border: 1.5px solid #222222 !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0px #222222 !important;
+}
+
+@media (max-width: 640px) {
+  .wf-controls {
+    bottom: 12px;
+    width: 90%;
+    max-width: 360px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 6px;
+    gap: 4px;
+  }
+}
+
+.wf-controls__btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: #555555 !important;
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: none !important;
+  white-space: nowrap;
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .wf-controls__btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+.wf-controls__btn * {
+  color: inherit !important;
+}
+
+.wf-controls__btn:hover {
+  color: #000000 !important;
+  background: #eeeeee !important;
+}
+
+.wf-controls__btn--active {
+  color: #000000 !important;
+  background: #dddddd !important;
+  font-weight: bold;
+}
+
+.wf-controls__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50% !important;
+  background: #cccccc !important;
+  border: 1px solid #777777 !important;
+  flex-shrink: 0;
+}
+
+.wf-controls__dot--active {
+  background: #222222 !important;
+  box-shadow: none !important;
+}
+
+.wf-controls__sep {
+  width: 1px;
+  height: 20px;
+  background: #cccccc !important;
+  margin: 0 2px;
+}
+
+@media (max-width: 640px) {
+  .wf-controls__sep {
+    display: none !important;
+  }
+}
+
+/* --- Wireframe Image Placeholder (compact solid box) --- */
+.wf-image-placeholder {
+  background-color: #f3f4f6 !important; /* solid compact gray */
+  border: 1px solid #d1d5db !important; /* standard solid gray border, no dashes */
+  border-radius: 4px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.wf-image-placeholder__label {
+  position: relative;
+  z-index: 1;
+  padding: 4px 10px;
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 3px !important;
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 10px;
+  font-weight: 600;
+  color: #222222 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
