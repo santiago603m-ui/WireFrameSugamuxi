@@ -63,7 +63,7 @@ function useWireframe() {
 }
 
 function WireframeProvider({ children }: { children: ReactNode }) {
-  const [wireframe, setWireframe] = useState(true);
+  const [wireframe, setWireframe] = useState(false);
   const [grid, setGrid] = useState(false);
   const [annotations, setAnnotations] = useState(false);
 
@@ -96,10 +96,12 @@ function Ph({
   label,
   tone = "verde",
   className = "",
+  imgSrc,
 }: {
   label: string;
   tone?: "verde" | "rojo" | "cafe" | "azul" | "cream";
   className?: string;
+  imgSrc?: string;
 }) {
   const { wireframe } = useWireframe();
 
@@ -130,14 +132,23 @@ function Ph({
 
   return (
     <div
-      className={`relative overflow-hidden ${tones[tone]} ${className}`}
+      className={`relative overflow-hidden ${tones[tone]} ${className} group`}
       role="img"
       aria-label={label}
     >
-      <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,white_2px,transparent_2px),radial-gradient(circle_at_80%_60%,white_1px,transparent_1px)] [background-size:48px_48px,32px_32px]" />
-      <div className="absolute bottom-3 left-3 text-[10px] font-mono uppercase tracking-widest opacity-70">
-        [{label}]
-      </div>
+      {imgSrc ? (
+        <>
+          <img src={imgSrc} alt={label} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+          <div className="absolute inset-0 bg-black/20 transition-opacity duration-500 group-hover:opacity-0 pointer-events-none" />
+        </>
+      ) : (
+        <>
+          <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,white_2px,transparent_2px),radial-gradient(circle_at_80%_60%,white_1px,transparent_1px)] [background-size:48px_48px,32px_32px]" />
+          <div className="absolute bottom-3 left-3 text-[10px] font-mono uppercase tracking-widest opacity-70">
+            [{label}]
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -146,7 +157,7 @@ function Ph({
    WIREFRAME CONTROLS TOOLBAR
    ======================================================== */
 function WireframeControls() {
-  const { wireframe, grid, annotations, toggle } = useWireframe();
+  const { wireframe, toggle } = useWireframe();
 
   return (
     <div className="wf-controls" id="wireframe-toolbar">
@@ -157,46 +168,7 @@ function WireframeControls() {
       >
         <span className={`wf-controls__dot ${wireframe ? "wf-controls__dot--active" : ""}`} />
         <PenTool style={{ width: 14, height: 14 }} />
-        Esquema
-      </button>
-
-      <span className="wf-controls__sep" />
-
-      <button
-        className={`wf-controls__btn ${grid ? "wf-controls__btn--active" : ""}`}
-        onClick={() => toggle("grid")}
-        aria-label="Alternar cuadricula"
-      >
-        <span className={`wf-controls__dot ${grid ? "wf-controls__dot--active" : ""}`} />
-        <Grid3X3 style={{ width: 14, height: 14 }} />
-        Cuadricula
-      </button>
-
-      <span className="wf-controls__sep" />
-
-      <button
-        className={`wf-controls__btn ${annotations ? "wf-controls__btn--active" : ""}`}
-        onClick={() => toggle("annotations")}
-        aria-label="Alternar anotaciones"
-      >
-        <span className={`wf-controls__dot ${annotations ? "wf-controls__dot--active" : ""}`} />
-        <MessageSquare style={{ width: 14, height: 14 }} />
-        Anotaciones
-      </button>
-
-      <span className="wf-controls__sep" />
-
-      <button
-        className="wf-controls__btn"
-        onClick={() => {
-          toggle("wireframe");
-          toggle("grid");
-          toggle("annotations");
-        }}
-        aria-label="Alternar todos los modos"
-      >
-        <Palette style={{ width: 14, height: 14 }} />
-        Todo
+        Ver Wireframe
       </button>
     </div>
   );
@@ -328,6 +300,7 @@ function Hero() {
             label="Foto: Lago de Tota al amanecer"
             tone="azul"
             className="col-span-2 row-span-2 rounded-3xl md:col-span-4"
+            imgSrc="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=1600"
           />
 
           {/* Description card */}
@@ -358,11 +331,13 @@ function Hero() {
             label="Foto: Basilica de Mongui"
             tone="cafe"
             className="col-span-1 rounded-2xl md:col-span-2"
+            imgSrc="https://images.unsplash.com/photo-1596489370845-a764d84f2c00?auto=format&fit=crop&q=80&w=800"
           />
           <Ph
             label="Foto: Cultivos de cebolla"
             tone="verde"
             className="col-span-1 rounded-2xl md:col-span-1"
+            imgSrc="https://images.unsplash.com/photo-1621847468307-8e65cf0bc2bb?auto=format&fit=crop&q=80&w=800"
           />
           <div className="col-span-1 flex items-center justify-between rounded-2xl bg-azul p-4 text-cream md:col-span-1">
             <Waves className="h-5 w-5" />
@@ -384,6 +359,7 @@ const destinos = [
     desc: "Capital cultural, museo arqueologico y herencia muisca.",
     tone: "verde" as const,
     span: "md:col-span-3 md:row-span-2",
+    imgSrc: "https://images.unsplash.com/photo-1549645938-34863f683bb5?auto=format&fit=crop&q=80&w=1200",
   },
   {
     nombre: "Mongui",
@@ -391,6 +367,7 @@ const destinos = [
     desc: "Calles empedradas, balones artesanales y basilica colonial.",
     tone: "rojo" as const,
     span: "md:col-span-3",
+    imgSrc: "https://images.unsplash.com/photo-1518002054494-3a6f94352e9d?auto=format&fit=crop&q=80&w=1200",
   },
   {
     nombre: "Aquitania",
@@ -398,6 +375,7 @@ const destinos = [
     desc: "El lago navegable mas grande de Colombia.",
     tone: "azul" as const,
     span: "md:col-span-2",
+    imgSrc: "https://images.unsplash.com/photo-1455218873509-8097305ee378?auto=format&fit=crop&q=80&w=800",
   },
   {
     nombre: "Iza",
@@ -405,6 +383,7 @@ const destinos = [
     desc: "Plaza dulce y aguas termales en el altiplano.",
     tone: "cafe" as const,
     span: "md:col-span-1",
+    imgSrc: "https://images.unsplash.com/photo-1582046467006-2531eec2534a?auto=format&fit=crop&q=80&w=800",
   },
 ];
 
@@ -430,7 +409,7 @@ function Destinos() {
               key={d.nombre}
               className={`group relative overflow-hidden rounded-3xl ${d.span}`}
             >
-              <Ph label={`Foto: ${d.nombre}`} tone={d.tone} className="absolute inset-0" />
+              <Ph label={`Foto: ${d.nombre}`} tone={d.tone} className="absolute inset-0" imgSrc={d.imgSrc} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="absolute inset-0 flex flex-col justify-end p-5 text-cream">
                 <span className="mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-cream/15 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest backdrop-blur">
@@ -539,9 +518,9 @@ function Gastronomia() {
             </div>
           </div>
 
-          <Ph label="Foto: Piquete boyacense" tone="cafe" className="col-span-2 row-span-2 rounded-3xl md:col-span-2" />
-          <Ph label="Foto: Postres de Iza" tone="cream" className="col-span-1 rounded-3xl md:col-span-2" />
-          <Ph label="Foto: Trucha del Lago" tone="azul" className="col-span-1 rounded-3xl md:col-span-2" />
+          <Ph label="Foto: Piquete boyacense" tone="cafe" className="col-span-2 row-span-2 rounded-3xl md:col-span-2" imgSrc="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=1000" />
+          <Ph label="Foto: Postres de Iza" tone="cream" className="col-span-1 rounded-3xl md:col-span-2" imgSrc="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800" />
+          <Ph label="Foto: Trucha del Lago" tone="azul" className="col-span-1 rounded-3xl md:col-span-2" imgSrc="https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?auto=format&fit=crop&q=80&w=800" />
 
           <div className="col-span-2 flex flex-wrap items-center gap-2 rounded-3xl bg-bone p-5 md:col-span-4">
             {platos.map((p) => (
@@ -553,7 +532,7 @@ function Gastronomia() {
               </span>
             ))}
           </div>
-          <Ph label="Foto: Mercado campesino" tone="verde" className="col-span-2 rounded-3xl md:col-span-2" />
+          <Ph label="Foto: Mercado campesino" tone="verde" className="col-span-2 rounded-3xl md:col-span-2" imgSrc="https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&q=80&w=1000" />
         </div>
       </div>
     </section>
